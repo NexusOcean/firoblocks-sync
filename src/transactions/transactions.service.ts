@@ -2,7 +2,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RpcService } from '../rpc/rpc.service';
-import { CachedTransaction, TransactionDocument } from './transactions.schema';
+import {
+  CachedTransaction,
+  TransactionDocument,
+  RecentTransactionsCache,
+  RecentTransactionsCacheDocument,
+} from './transactions.schema';
 import {
   FiroTransaction,
   TransactionDto,
@@ -16,6 +21,7 @@ import {
 
 const TIP_TTL_MS = 15_000;
 const CONFIRMED_TTL_MS = 365 * 24 * 60 * 60 * 1000;
+const RECENT_TTL_MS = 5 * 60 * 1000;
 
 @Injectable()
 export class TransactionsService {
@@ -26,6 +32,8 @@ export class TransactionsService {
     private readonly rpc: RpcService,
     @InjectModel(CachedTransaction.name)
     private readonly txModel: Model<TransactionDocument>,
+    @InjectModel(RecentTransactionsCache.name)
+    private readonly recentTxModel: Model<RecentTransactionsCacheDocument>,
   ) {}
 
   async getTransaction(txid: string): Promise<TransactionDto> {
@@ -70,6 +78,36 @@ export class TransactionsService {
     }
 
     return results;
+  }
+
+  async getRecentTransactions(limit = 10): Promise<TransactionDto[]> {
+    const tip = await this.getChainTip();
+    const txids: string[] = [];
+    let height = tip;
+
+    while (txids.length < limit && height > 0) {
+      const hash = await this.rpc.call<string>('getblockhash', [height]);
+      const block = await this.rpc.call<{ tx: string[] }>('getblock', [hash, true]);
+      txids.push(...block.tx);
+      height--;
+    }
+
+    return this.getTransactionsByBlock(txids.slice(0, limit));
+  }
+
+  async saveRecentTransactions(txs: TransactionDto[]): Promise<void> {
+    const expiresAt = new Date(Date.now() + RECENT_TTL_MS);
+    await this.recentTxModel.updateOne(
+      { key: 'recent' },
+      { $set: { key: 'recent', data: txs, expiresAt } },
+      { upsert: true },
+    );
+  }
+
+  async getCachedRecentTransactions(): Promise<TransactionDto[] | null> {
+    const cached = await this.recentTxModel.findOne({ key: 'recent' }).lean();
+    if (!cached) return null;
+    return cached.data as unknown as TransactionDto[];
   }
 
   private toTransactionDto(raw: FiroTransaction): TransactionDto {
@@ -137,7 +175,6 @@ export class TransactionsService {
     vout: TxVoutDto[],
   ): number | undefined {
     if (type === 'spark') {
-      // nFees is on the single spark spend input
       const sparkVin = raw.vin.find(isSparkSpendVin);
       return sparkVin?.nFees;
     }
@@ -145,7 +182,6 @@ export class TransactionsService {
       const totalIn = vin.reduce((s, v) => s + (v.value ?? 0), 0);
       const totalOut = vout.reduce((s, v) => s + v.value, 0);
       const fee = totalIn - totalOut;
-      // Guard against missing input values (unlikely with verbosity=1 but possible)
       return fee > 0 ? parseFloat(fee.toFixed(8)) : undefined;
     }
     return undefined;
@@ -171,20 +207,5 @@ export class TransactionsService {
       { $set: { txid: tx.txid, data: dataToStore, expiresAt } },
       { upsert: true },
     );
-  }
-
-  async getRecentTransactions(limit = 10): Promise<TransactionDto[]> {
-    const tip = await this.getChainTip();
-    const txids: string[] = [];
-    let height = tip;
-
-    while (txids.length < limit && height > 0) {
-      const hash = await this.rpc.call<string>('getblockhash', [height]);
-      const block = await this.rpc.call<{ tx: string[] }>('getblock', [hash, true]);
-      txids.push(...block.tx);
-      height--;
-    }
-
-    return this.getTransactionsByBlock(txids.slice(0, limit));
   }
 }

@@ -18,7 +18,8 @@ export class TransactionSyncService {
 
     this.running = true;
     try {
-      await this.txService.getRecentTransactions(10);
+      const txs = await this.txService.getRecentTransactions(10);
+      await this.txService.saveRecentTransactions(txs);
       this.logger.log('Recent transactions cache warmed');
     } catch (err) {
       this.logger.error(`warmRecentTransactions failed: ${err.message}`);
