@@ -30,7 +30,7 @@ export class RpcService {
         baseURL: `http://${n.host}:${n.port}`,
         auth: { username: n.user, password: n.pass },
         headers: { 'Content-Type': 'application/json' },
-        timeout: 60_000,
+        timeout: 10_000,
       }),
     );
   }
