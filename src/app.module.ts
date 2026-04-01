@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RpcModule } from './rpc/rpc.module';
 import { NetworkStatsModule } from './network/network.module';
 import { TransactionSyncModule } from './tx-sync/tx-sync.module';
+import { AddressSyncModule } from './address-sync/address-sync.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TransactionSyncModule } from './tx-sync/tx-sync.module';
     RpcModule,
     NetworkStatsModule,
     TransactionSyncModule,
+    AddressSyncModule,
   ],
 })
 export class AppModule {}
