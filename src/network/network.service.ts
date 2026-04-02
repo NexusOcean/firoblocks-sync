@@ -12,6 +12,7 @@ interface TxOutSetInfo {
 }
 
 interface BlockchainInfo {
+  blocks: number;
   difficulty: number;
   bestblockhash: string;
 }
@@ -79,6 +80,7 @@ export class NetworkStatsService {
         { chain: 'main', type: 'chain' },
         {
           $set: {
+            height: chainInfo.blocks,
             difficulty: chainInfo.difficulty,
             bestBlockHash: chainInfo.bestblockhash,
             hashrate,
