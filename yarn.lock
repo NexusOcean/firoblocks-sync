@@ -603,12 +603,12 @@
     jsonc-parser "3.3.1"
     pluralize "8.0.0"
 
-"@nexusocean/firo-rpc@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.npmjs.org/@nexusocean/firo-rpc/-/firo-rpc-0.4.0.tgz#5ffed91c8e6925fbe4952990b20b9e12e1e50258"
-  integrity sha512-57naKWHHRrES3IYIkaf6JTd66XoXfyUFZVNSjDJvODf6lgHYjQ/NltnQOSZytLCjU3nCaYN9W6lmy/m8FnMeBQ==
+"@nexusocean/firo-rpc@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.npmjs.org/@nexusocean/firo-rpc/-/firo-rpc-0.6.0.tgz#89f68ac39baf083e3a32abec30e40e5adca01fe9"
+  integrity sha512-Hz0412nyH/u8EycmjmO65tlusPZeEcwgjINxBt91j8gPsFjVo08TiUezKutC+gBqyPMM1W3inKCkoWkzIyDirQ==
   dependencies:
-    axios "^1.15.1"
+    axios "^1.18.1"
 
 "@noble/ciphers@^1.3.0":
   version "1.3.0"
@@ -1280,16 +1280,6 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
-
-axios@^1.15.1:
-  version "1.17.0"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.17.0.tgz#ae5a1164a4f719942cd73c67e6a3f62d3ccb8f2b"
-  integrity sha512-J8SwNxprqqpbfenehxWYXE7CW+wM1BB4w3+N+g+/Wx40xM4rsLrfPmHHxSWIxJLYDgSY/HqlFPIYb2/S3rxafw==
-  dependencies:
-    follow-redirects "^1.16.0"
-    form-data "^4.0.5"
-    https-proxy-agent "^5.0.1"
-    proxy-from-env "^2.1.0"
 
 axios@^1.18.1:
   version "1.18.1"
